@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>版本洞察工作台 - 游戏研发协同</title>
+  <style>
+    :root {
+      --bg: #f3f5f7;
+      --surface: #ffffff;
+      --surface-2: #e9edf1;
+      --ink: #1e2933;
+      --muted: #6d7780;
+      --line: #dce2e7;
+      --brand: #28735d;
+      --brand-deep: #1f5b4a;
+      --brand-soft: #e5f1ed;
+      --green: #24734f;
+      --green-soft: #e8f4ed;
+      --red: #b44c45;
+      --red-soft: #f9ecea;
+      --yellow: #9a6d28;
+      --yellow-soft: #fbf3e3;
+      --blue: #4f7897;
+      --blue-soft: #edf3f6;
+      --shadow: 0 10px 30px rgba(29, 42, 51, 0.06);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #1e2d35;
+      color: #f5f7fb;
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0 4px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .brand p {
+      margin: 0;
+      color: #afbec4;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .nav-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-title {
+      padding: 0 4px;
+      color: #91a4a9;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .scenario-btn {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #dce7ef;
+      background: rgba(255,255,255,0.035);
+      text-align: left;
+      padding: 13px 12px;
+      border-radius: 6px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .scenario-btn[aria-pressed="true"] {
+      color: #ffffff;
+      border-color: #5da58d;
+      background: #2b5148;
+      box-shadow: inset 3px 0 0 #7dc3a8;
+    }
+
+    .scenario-btn strong {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .scenario-btn span {
+      color: #aebdc1;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .data-stack {
+      margin-top: auto;
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .data-stack div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: #cbd7e2;
+    }
+
+    .data-stack strong {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 22px 26px 32px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h2 {
+      margin: 0 0 6px;
+      font-size: 23px;
+      font-weight: 600;
+    }
+
+    .title-block p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 780px;
+      font-size: 14px;
+    }
+
+    .status-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .badge.good {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #b9ddcc;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .metrics {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .metric,
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 15px 16px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .metric em {
+      color: var(--green);
+      font-style: normal;
+      font-size: 12px;
+    }
+
+    .workspace {
+      grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.9fr);
+      align-items: start;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 15px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .panel-header span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 17px 18px 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .query-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .query-box label {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 92px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 12px;
+      color: var(--ink);
+      background: #fbfcfd;
+      line-height: 1.6;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 500;
+    }
+
+    .btn.primary {
+      background: var(--brand-deep);
+      border-color: var(--brand-deep);
+      color: #ffffff;
+    }
+
+    .btn:disabled {
+      opacity: 0.58;
+      cursor: default;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+      gap: 16px;
+    }
+
+    .logic {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #f8fafc;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .logic-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .agent-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .agent-step {
+      min-height: 74px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #ffffff;
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+
+    .agent-step strong {
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .agent-step span {
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    code {
+      white-space: pre-wrap;
+      color: #233446;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .chart {
+      min-height: 260px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 16px;
+      display: grid;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .bars {
+      height: 190px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .bar-cell {
+      min-width: 0;
+      display: grid;
+      gap: 7px;
+      align-items: end;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bar {
+      width: 100%;
+      min-height: 10px;
+      border-radius: 6px 6px 0 0;
+      background: var(--blue);
+      position: relative;
+    }
+
+    .bar.warn {
+      background: var(--yellow);
+    }
+
+    .bar.risk {
+      background: var(--red);
+    }
+
+    .bar strong {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -24px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .insights {
+      display: grid;
+      gap: 10px;
+    }
+
+    .insight {
+      border-radius: 5px;
+      padding: 12px;
+      background: var(--blue-soft);
+      color: #183862;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .insight.warn {
+      background: var(--yellow-soft);
+      color: var(--yellow);
+    }
+
+    .insight.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 500;
+      background: #f8fafc;
+    }
+
+    .right-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .risk-item,
+    .action-item {
+      display: grid;
+      gap: 8px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fbfcfd;
+    }
+
+    .risk-item strong,
+    .action-item strong {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .risk-item p,
+    .action-item p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .priority {
+      width: fit-content;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .priority.high {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .priority.mid {
+      color: var(--yellow);
+      background: var(--yellow-soft);
+    }
+
+    .source-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .source-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .source-row:last-child {
+      border-bottom: 0;
+    }
+
+    .source-row span {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .source-row strong {
+      font-weight: 500;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      padding: 10px 13px;
+      border-radius: 8px;
+      color: #ffffff;
+      background: #14212e;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: 180ms ease;
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1080px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .nav-section {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: grid;
+      }
+
+      .nav-title,
+      .data-stack {
+        grid-column: 1 / -1;
+      }
+
+      .workspace,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .main {
+        padding: 16px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .nav-section {
+        grid-template-columns: 1fr;
+      }
+
+      .query-box {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .query-box .btn {
+        width: 100%;
+      }
+
+      .bars {
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-header {
+        align-items: flex-start;
+      }
+
+      .bar-cell {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>版本洞察</h1>
+        <p>游戏研发协同工作台</p>
+      </div>
+
+      <div class="nav-section" aria-label="工作模块">
+        <div class="nav-title">工作模块</div>
+        <button class="scenario-btn" type="button" data-scenario="revenue" aria-pressed="true">
+          <strong>经营数据</strong>
+          <span>充值、留存、玩法参与等核心指标</span>
+        </button>
+        <button class="scenario-btn" type="button" data-scenario="feedback" aria-pressed="false">
+          <strong>版本反馈</strong>
+          <span>上线后的问题聚类与处理优先级</span>
+        </button>
+        <button class="scenario-btn" type="button" data-scenario="schedule" aria-pressed="false">
+          <strong>版本排期</strong>
+          <span>任务延期、依赖阻塞与上线影响</span>
+        </button>
+      </div>
+
+      <div class="data-stack" aria-label="数据概览">
+        <div><span>玩家日志</span><strong>128k</strong></div>
+        <div><span>充值流水</span><strong>32k</strong></div>
+        <div><span>工单反馈</span><strong>4.8k</strong></div>
+        <div><span>版本任务</span><strong>214</strong></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar">
+        <div class="title-block">
+          <h2 id="page-title">经营数据</h2>
+          <p id="page-subtitle">围绕当前版本的核心指标，快速定位变化、判断影响并形成跟进动作。</p>
+        </div>
+        <div class="status-row">
+          <span class="badge good">数据已更新</span>
+          <span class="badge">版本 3.6</span>
+          <span class="badge">10 月 13 日</span>
+        </div>
+      </section>
+
+      <section class="grid metrics" aria-label="版本概览">
+        <div class="metric">
+          <span>7 日流水</span>
+          <strong id="metric-time">447.9 万</strong>
+          <em id="metric-time-note">较上周 +8.6%</em>
+        </div>
+        <div class="metric">
+          <span>活跃用户</span>
+          <strong id="metric-rounds">18.4 万</strong>
+          <em id="metric-rounds-note">较上周 -2.1%</em>
+        </div>
+        <div class="metric">
+          <span>版本完成度</span>
+          <strong id="metric-trace">72%</strong>
+          <em id="metric-trace-note">214 项任务，28 项存在风险</em>
+        </div>
+        <div class="metric">
+          <span>待处理反馈</span>
+          <strong id="metric-confidence">126</strong>
+          <em id="metric-confidence-note">较昨日新增 18 条</em>
+        </div>
+      </section>
+
+      <section class="grid workspace">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3 id="scenario-title">经营数据</h3>
+              <span id="scenario-caption">按自然语言筛选指标，查看变化和重点区服。</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="query-box">
+              <label>
+                查询条件
+                <textarea id="query-input"></textarea>
+              </label>
+              <button class="btn primary" id="run-agent" type="button">运行 Agent</button>
+            </div>
+
+            <div class="result-grid">
+              <div class="grid">
+                <div class="logic">
+                  <div class="logic-title">
+                    <span>Agent 执行链路</span>
+                    <span id="logic-status">已完成</span>
+                  </div>
+                  <div class="agent-steps" id="agent-steps"></div>
+                  <code id="sql-output"></code>
+                </div>
+
+                <div class="chart" aria-label="结果图表">
+                  <div class="bars" id="bars"></div>
+                  <div id="chart-caption" class="badge">按区服聚合</div>
+                </div>
+              </div>
+
+              <div class="insights" id="insights" aria-live="polite"></div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr id="table-head"></tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <aside class="right-stack">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>风险与待办</h3>
+            <span id="risk-caption">今日更新</span>
+            </div>
+            <div class="panel-body" id="risks"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>数据源与可追溯性</h3>
+              <span>数据管理</span>
+            </div>
+            <div class="panel-body source-list">
+              <div class="source-row">
+                <span>玩家日志、充值流水、反馈工单、版本任务</span>
+                <strong>4 个来源</strong>
+              </div>
+              <div class="source-row">
+                <span>查询口径与样本证据</span>
+                <strong>可追溯</strong>
+              </div>
+              <div class="source-row">
+                <span>按团队与项目分配访问权限</span>
+                <strong>已配置</strong>
+              </div>
+              <div class="source-row">
+                <span>异常订阅、日报推送、人工反馈闭环</span>
+                <strong>规划中</strong>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+  <script>
+    const scenarios = {
+      revenue: {
+        pageTitle: "经营数据",
+        pageSubtitle: "围绕当前版本的核心指标，快速定位变化、判断影响并形成跟进动作。",
+        title: "高价值玩家与区服表现",
+        caption: "按自然语言筛选指标，查看变化、口径和重点区服。",
+        query: "最近 7 天充值超过 100 万的玩家有多少？他们主要集中在哪些区服，和上周相比有什么变化？",
+        sql: `SELECT server_id,
+       COUNT(DISTINCT player_id) AS whale_players,
+       SUM(pay_amount) AS pay_total,
+       ROUND((SUM(pay_amount) - LAG(SUM(pay_amount)) OVER server_id) / LAG(SUM(pay_amount)) OVER server_id, 2) AS wow_change
+FROM payment_log
+WHERE pay_date BETWEEN CURRENT_DATE - INTERVAL '7 day' AND CURRENT_DATE
+GROUP BY server_id
+HAVING SUM(pay_amount) >= 1000000
+ORDER BY pay_total DESC;`,
+        chartCaption: "高价值充值玩家按区服聚合",
+        bars: [
+          { label: "S12", value: 126, level: "risk" },
+          { label: "S08", value: 98, level: "warn" },
+          { label: "S03", value: 76, level: "normal" },
+          { label: "S21", value: 61, level: "normal" },
+          { label: "S17", value: 54, level: "normal" }
+        ],
+        insights: [
+          { tone: "", text: "S12 高价值玩家数最高，但付费集中度异常，Top 10 玩家贡献 41% 流水，需要关注活动奖励是否过度倾斜。" },
+          { tone: "warn", text: "S08 较上周增长 23%，主要来自限时卡池活动；建议追踪活动结束后 3 日留存与复购。" },
+          { tone: "", text: "当前口径：自然周、去重玩家、成功支付订单，不含退款。" }
+        ],
+        columns: ["区服", "高价值玩家", "7日流水", "环比", "建议动作"],
+        rows: [
+          ["S12", "126", "183.4 万", "-8%", "复核大额玩家流失风险"],
+          ["S08", "98", "151.2 万", "+23%", "拆解卡池活动贡献"],
+          ["S03", "76", "119.7 万", "+5%", "观察周末活动表现"],
+          ["S21", "61", "103.6 万", "-2%", "维持常规监控"]
+        ],
+        risks: [
+          { level: "high", title: "S12 付费集中度偏高", text: "Top 10 玩家贡献过高，若活动体验波动会放大流水风险。" },
+          { level: "mid", title: "S08 活动后回落风险", text: "增长主要来自限时卡池，建议创建活动结束后复盘任务。" },
+          { level: "", title: "口径已记录", text: "查询自动保存为可复用模板，后续可订阅每日 10:00 更新。" }
+        ],
+        metrics: ["447.9 万", "18.4 万", "72%", "126"],
+        metricNotes: ["7 日流水，较上周 +8.6%", "活跃用户，较上周 -2.1%", "版本完成度，28 项有风险", "待处理反馈，新增 18 条"],
+        interfaceNote: "自然语言问数场景",
+        agent: {
+          label: "经营分析 Agent",
+          mode: "rules",
+          plan: ["识别时间范围与付费阈值", "调用充值流水与玩家日志", "定位异常区服与高价值玩家", "生成 PM 跟进动作"],
+          tools: ["payment_log", "player_profile", "server_metrics"],
+          summary: "S12 高价值玩家集中度偏高，S08 增长主要来自限时活动，需要拆分活动贡献与自然增长。",
+          evidence: ["近 7 天流水 447.9 万，环比 +8.6%", "S12 高价值玩家 126 人，Top 玩家贡献集中", "S08 环比增长 23%，活动结束后存在回落风险"],
+          next: ["核对活动贡献与自然增长", "拆分 Top 玩家付费结构", "同步运营追踪活动后留存"]
+        }
+      },
+      feedback: {
+        pageTitle: "版本反馈",
+        pageSubtitle: "聚合工单与社区评论，优先处理影响体验和留存的高频问题。",
+        title: "玩法上线后反馈分布",
+        caption: "按问题类型、影响群体和处理优先级整理反馈。",
+        query: "新玩法上线后，负反馈最高的 3 类问题是什么？分别影响哪些玩家群体，应该优先处理哪一类？",
+        sql: `WITH feedback AS (
+  SELECT ticket_id, player_id, server_id, content, sentiment_score, feature_tag
+  FROM support_ticket
+  WHERE created_at >= release_time('v3.6')
+)
+SELECT cluster_label,
+       COUNT(*) AS feedback_count,
+       AVG(sentiment_score) AS avg_negative_score,
+       COUNT(DISTINCT player_id) AS affected_players
+FROM feedback_cluster(feedback)
+GROUP BY cluster_label
+ORDER BY feedback_count DESC, avg_negative_score ASC
+LIMIT 3;`,
+        chartCaption: "负反馈聚类 Top 5",
+        bars: [
+          { label: "匹配慢", value: 42, level: "risk" },
+          { label: "奖励低", value: 31, level: "warn" },
+          { label: "引导弱", value: 24, level: "warn" },
+          { label: "掉线", value: 13, level: "normal" },
+          { label: "难度高", value: 9, level: "normal" }
+        ],
+        insights: [
+          { tone: "risk", text: "匹配等待过长是最高优先级问题，占负反馈 42%，并集中在新服和低活跃时段。" },
+          { tone: "warn", text: "奖励感知偏低与玩法完成时长相关，建议先调整首胜奖励提示，而不是直接改数值。" },
+          { tone: "", text: "新手引导问题影响低等级玩家，可通过入口提示和失败后说明低成本修复。" }
+        ],
+        columns: ["问题类别", "反馈占比", "影响群体", "建议优先级", "建议动作"],
+        rows: [
+          ["匹配等待过长", "42%", "新服、低活跃时段", "P0", "增加跨服匹配与等待提示"],
+          ["奖励感知偏低", "31%", "中高活跃玩家", "P1", "优化奖励展示与首胜反馈"],
+          ["玩法引导不足", "24%", "新手与回流玩家", "P1", "补充入口说明与失败原因"],
+          ["偶发掉线", "13%", "移动网络用户", "P2", "转研发排查日志"]
+        ],
+        risks: [
+          { level: "high", title: "匹配慢已影响核心体验", text: "负反馈集中且与留存链路强相关，建议进入当日 hotfix 评估。" },
+          { level: "mid", title: "奖励问题先做表达优化", text: "当前证据更像感知问题，直接改经济数值风险较高。" },
+          { level: "", title: "复盘材料已整理", text: "可同步给策划、运营和研发，减少人工整理时间。" }
+        ],
+        metrics: ["4,800", "42%", "3 类", "P0"],
+        metricNotes: ["近 7 日反馈样本", "匹配等待相关反馈占比", "主要问题类型", "最高处理优先级"],
+        interfaceNote: "版本反馈归因场景",
+        agent: {
+          label: "反馈归因 Agent",
+          mode: "rules",
+          plan: ["聚合工单与社区评论", "按语义聚类负反馈", "识别影响群体与优先级", "生成修复建议"],
+          tools: ["support_ticket", "community_comment", "feedback_cluster"],
+          summary: "匹配等待过长是 P0 风险，奖励感知偏低更适合先优化表达，不建议直接改经济数值。",
+          evidence: ["近 7 日反馈样本 4,800 条", "匹配慢占负反馈 42%", "问题集中在新服与低活跃时段"],
+          next: ["优先排查新服匹配队列", "先优化奖励表达再改数值", "补充入口说明与失败原因"]
+        }
+      },
+      schedule: {
+        pageTitle: "版本排期",
+        pageSubtitle: "识别策划、美术、程序、测试、营销之间的依赖风险，提前处理上线阻塞。",
+        title: "本周排期风险",
+        caption: "从任务状态变化中识别下游影响和今日跟进对象。",
+        query: "这周版本排期里，谁的任务状态变化会影响上线？请按风险程度给我预警，并列出需要我今天推动的人。",
+        sql: `SELECT task_id,
+       owner,
+       team,
+       status,
+       due_date,
+       dependency_task,
+       downstream_feature,
+       risk_score
+FROM sprint_task
+WHERE sprint = current_sprint()
+  AND (status IN ('blocked', 'delayed') OR risk_score >= 0.7)
+ORDER BY risk_score DESC, due_date ASC;`,
+        chartCaption: "版本任务风险分布",
+        bars: [
+          { label: "程序", value: 78, level: "risk" },
+          { label: "美术", value: 64, level: "warn" },
+          { label: "策划", value: 51, level: "warn" },
+          { label: "测试", value: 36, level: "normal" },
+          { label: "营销", value: 22, level: "normal" }
+        ],
+        insights: [
+          { tone: "risk", text: "战斗结算接口延期会影响玩法验收与宣传录屏，是本周最高风险依赖。" },
+          { tone: "warn", text: "角色皮肤资源晚交会压缩联调时间，建议今天确认是否降级首发范围。" },
+          { tone: "", text: "营销素材本身风险低，但依赖美术资源，需同步下游交付时间。" }
+        ],
+        columns: ["任务", "负责人", "团队", "风险", "PM 今日动作"],
+        rows: [
+          ["战斗结算接口", "后端 A", "程序", "高", "确认最晚联调时间与兜底方案"],
+          ["新角色皮肤资源", "美术 B", "美术", "中", "决定首发资源范围是否缩减"],
+          ["玩法数值表", "策划 C", "策划", "中", "冻结版本并同步测试用例"],
+          ["宣传录屏", "运营 D", "营销", "低", "等待资源确认后排拍摄窗口"]
+        ],
+        risks: [
+          { level: "high", title: "接口延期影响上线链路", text: "下游涉及玩法验收、测试回归和营销录屏，需要 PM 今天协调。" },
+          { level: "mid", title: "美术资源压缩联调窗口", text: "建议准备首发降级方案，避免临近上线被动砍需求。" },
+          { level: "", title: "已生成同步清单", text: "可直接贴到项目群，包含负责人、截止时间和兜底动作。" }
+        ],
+        metrics: ["214", "28", "5 个团队", "3 天"],
+        metricNotes: ["版本任务总数", "存在延期或阻塞风险", "涉及策划/美术/程序/测试/营销", "距离提测窗口"],
+        interfaceNote: "版本排期风险预警场景",
+        agent: {
+          label: "排期风险 Agent",
+          mode: "rules",
+          plan: ["读取版本任务与依赖关系", "识别延期和阻塞节点", "推断下游影响", "生成今日协调清单"],
+          tools: ["sprint_task", "dependency_graph", "release_calendar"],
+          summary: "战斗结算接口延期会挤压提测窗口，并影响玩法验收与宣传录屏，需要 PM 当天协调。",
+          evidence: ["版本任务 214 项，其中 28 项存在风险", "涉及策划、美术、程序、测试、营销 5 个团队", "距离提测窗口仅剩 3 天"],
+          next: ["锁定战斗结算接口负责人", "提前约联调与验收窗口", "同步营销素材风险边界"]
+        }
+      }
+    };
+
+    const state = { current: "revenue" };
+    const els = {
+      pageTitle: document.getElementById("page-title"),
+      pageSubtitle: document.getElementById("page-subtitle"),
+      scenarioTitle: document.getElementById("scenario-title"),
+      scenarioCaption: document.getElementById("scenario-caption"),
+      queryInput: document.getElementById("query-input"),
+      agentSteps: document.getElementById("agent-steps"),
+      sqlOutput: document.getElementById("sql-output"),
+      logicStatus: document.getElementById("logic-status"),
+      bars: document.getElementById("bars"),
+      chartCaption: document.getElementById("chart-caption"),
+      insights: document.getElementById("insights"),
+      tableHead: document.getElementById("table-head"),
+      tableBody: document.getElementById("table-body"),
+      risks: document.getElementById("risks"),
+      riskCaption: document.getElementById("risk-caption"),
+      metricTime: document.getElementById("metric-time"),
+      metricRounds: document.getElementById("metric-rounds"),
+      metricTrace: document.getElementById("metric-trace"),
+      metricConfidence: document.getElementById("metric-confidence"),
+      metricTimeNote: document.getElementById("metric-time-note"),
+      metricRoundsNote: document.getElementById("metric-rounds-note"),
+      metricTraceNote: document.getElementById("metric-trace-note"),
+      metricConfidenceNote: document.getElementById("metric-confidence-note")
+    };
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function buildAgentText(item, agent = item.agent) {
+      const tools = agent.tools.map((tool) => `- ${tool}`).join("\n");
+      const evidence = agent.evidence.map((line) => `- ${line}`).join("\n");
+      const next = agent.next.map((line) => `- ${line}`).join("\n");
+      return `Agent：${agent.label}
+模式：${agent.mode === "model" ? "模型增强 + 业务工具" : "规则编排 + 模拟数据"}
+
+调用工具：
+${tools}
+
+证据摘要：
+${evidence}
+
+结论：
+${agent.summary}
+
+下一步动作：
+${next}`;
+    }
+
+    function renderAgent(agent, item) {
+      els.agentSteps.innerHTML = agent.plan.map((step, index) => (
+        `<div class="agent-step"><strong>Step ${index + 1}</strong><span>${escapeHtml(step)}</span></div>`
+      )).join("");
+      els.sqlOutput.textContent = buildAgentText(item, agent);
+      els.logicStatus.textContent = agent.mode === "model" ? "模型增强" : "已完成";
+    }
+
+    function renderScenario(key) {
+      state.current = key;
+      const item = scenarios[key];
+      els.pageTitle.textContent = item.pageTitle;
+      els.pageSubtitle.textContent = item.pageSubtitle;
+      els.scenarioTitle.textContent = item.title;
+      els.scenarioCaption.textContent = item.caption;
+      els.queryInput.value = item.query;
+      els.sqlOutput.textContent = item.sql;
+      els.chartCaption.textContent = item.chartCaption;
+      els.metricTime.textContent = item.metrics[0];
+      els.metricRounds.textContent = item.metrics[1];
+      els.metricTrace.textContent = item.metrics[2];
+      els.metricConfidence.textContent = item.metrics[3];
+      els.metricTimeNote.textContent = item.metricNotes[0];
+      els.metricRoundsNote.textContent = item.metricNotes[1];
+      els.metricTraceNote.textContent = item.metricNotes[2];
+      els.metricConfidenceNote.textContent = item.metricNotes[3];
+      renderAgent(item.agent, item);
+
+      document.querySelectorAll(".scenario-btn").forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.scenario === key ? "true" : "false");
+      });
+
+      const max = Math.max(...item.bars.map((bar) => bar.value));
+      els.bars.innerHTML = item.bars.map((bar) => {
+        const pct = Math.max(12, Math.round((bar.value / max) * 100));
+        const cls = bar.level === "risk" ? "risk" : bar.level === "warn" ? "warn" : "";
+        return `<div class="bar-cell"><div class="bar ${cls}" style="height:${pct}%"><strong>${bar.value}</strong></div><span>${bar.label}</span></div>`;
+      }).join("");
+
+      els.insights.innerHTML = item.insights.map((insight) => (
+        `<div class="insight ${insight.tone}">${insight.text}</div>`
+      )).join("");
+
+      els.tableHead.innerHTML = item.columns.map((column) => `<th>${column}</th>`).join("");
+      els.tableBody.innerHTML = item.rows.map((row) => (
+        `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`
+      )).join("");
+
+      els.risks.innerHTML = item.risks.map((risk) => {
+        const cls = risk.level === "high" ? "high" : risk.level === "mid" ? "mid" : "";
+        const label = risk.level === "high" ? "高优先级" : risk.level === "mid" ? "中优先级" : "可订阅";
+        return `<div class="risk-item"><span class="priority ${cls}">${label}</span><strong>${risk.title}</strong><p>${risk.text}</p></div>`;
+      }).join("");
+    }
+
+    function renderAgentResponse(payload) {
+      const key = payload.scenarioKey && scenarios[payload.scenarioKey] ? payload.scenarioKey : state.current;
+      renderScenario(key);
+      const item = scenarios[key];
+      els.queryInput.value = payload.query || els.queryInput.value;
+      if (payload.agent) {
+        renderAgent(payload.agent, item);
+        els.insights.innerHTML = [
+          `<div class="insight">${escapeHtml(payload.agent.summary)}</div>`,
+          ...payload.agent.evidence.map((line) => `<div class="insight warn">${escapeHtml(line)}</div>`)
+        ].join("");
+        els.risks.innerHTML = payload.agent.next.map((line, index) => {
+          const label = index === 0 ? "高优先级" : "建议动作";
+          const cls = index === 0 ? "high" : "";
+          return `<div class="risk-item"><span class="priority ${cls}">${label}</span><strong>${escapeHtml(line)}</strong><p>由 ${escapeHtml(payload.agent.label)} 根据当前问题生成。</p></div>`;
+        }).join("");
+      }
+    }
+
+    document.querySelectorAll(".scenario-btn").forEach((button) => {
+      button.addEventListener("click", () => renderScenario(button.dataset.scenario));
+    });
+
+    document.getElementById("run-agent").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      button.textContent = "Agent 分析中";
+      els.logicStatus.textContent = "运行中";
+      els.agentSteps.innerHTML = [
+        "理解问题意图",
+        "选择业务工具",
+        "检索模拟数据",
+        "生成判断与动作"
+      ].map((step, index) => (
+        `<div class="agent-step"><strong>Step ${index + 1}</strong><span>${step}</span></div>`
+      )).join("");
+
+      try {
+        const response = await fetch("/api/agent", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            query: els.queryInput.value,
+            scenario: state.current
+          })
+        });
+        if (!response.ok) throw new Error("agent api unavailable");
+        const payload = await response.json();
+        renderAgentResponse(payload);
+      } catch (error) {
+        const item = scenarios[state.current];
+        renderAgent(item.agent, item);
+        els.logicStatus.textContent = "本地完成";
+      } finally {
+        button.disabled = false;
+        button.textContent = "运行 Agent";
+      }
+    });
+
+    renderScenario("revenue");
+  </script>
+</body>
+</html>
